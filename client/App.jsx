@@ -25,7 +25,7 @@ const Stack = createNativeStackNavigator();
 function RootStack() {
   return (
     <Stack.Navigator
-      initialRouteName="verifyOtp"
+      initialRouteName="firstLoaderScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="signup" component={Signup} />

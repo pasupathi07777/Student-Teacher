@@ -2,7 +2,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { validateFields } from "../utils/functions.js";
-
+import nodemailer from "nodemailer";
 // signup
 export const signup = async (req, res) => {
   const { username, email, password } = req.body;
@@ -110,7 +110,7 @@ export const login = async (req, res) => {
   }
 };
 
-// resetPassword
+// verify Email
 export const verfiyEmail = async (req, res) => {
   const { email } = req.body;
   try {
@@ -137,13 +137,16 @@ export const verfiyEmail = async (req, res) => {
   }
 };
 
-import nodemailer from "nodemailer";
-// import User from "../models/User"; `
+
+
+// generateOTP
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+
+// send OTP
 export const otpSenter = async (req, res) => {
   const { email } = req.body;
 
@@ -198,6 +201,81 @@ export const otpSenter = async (req, res) => {
     });
   }
 };
+
+
+// verify OTP
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        errors: [
+          {
+            field: "email",
+            error: "User does not exist",
+          },
+        ],
+      });
+    }
+
+    if (!user.otp || !user.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        errors: [
+          {
+            field: "otp",
+            error: "No OTP found for this user. Please request a new OTP.",
+          },
+        ],
+      });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        errors: [
+          {
+            field: "otp",
+            error: "Invalid OTP. Please try again.",
+          },
+        ],
+      });
+    }
+
+    if (Date.now() > user.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        errors: [
+          {
+            field: "otp",
+            error: "OTP has expired. Please request a new OTP.",
+          },
+        ],
+      });
+    }
+
+    // Clear the OTP and expiry after successful verification
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "OTP verified successfully.",
+    });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({
+      success: false,
+      errors: [{ field: "other", error: "Internal Server Error" }],
+    });
+  }
+};
+
 
 
 
