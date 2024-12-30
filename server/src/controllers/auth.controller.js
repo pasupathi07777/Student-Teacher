@@ -121,7 +121,7 @@ export const verfiyEmail = async (req, res) => {
         errors: [
           {
             field: "email",
-            error: "User does not exist",
+            error: "email does not exist",
           },
         ],
       });
@@ -137,13 +137,21 @@ export const verfiyEmail = async (req, res) => {
   }
 };
 
+import nodemailer from "nodemailer";
+// import User from "../models/User"; `
+
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 export const otpSenter = async (req, res) => {
   const { email } = req.body;
+
   try {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
-        succces: false,
+        success: false,
         errors: [
           {
             field: "email",
@@ -152,16 +160,45 @@ export const otpSenter = async (req, res) => {
         ],
       });
     }
-    res
-      .status(200)
-      .json({ success: true, message: "Email verified successfully" });
+    const otp = generateOTP();
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", 
+      auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASSWORD, 
+      },
+    });
+
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP code is: ${otp}. It is valid for the next 10 minutes.`,
+    };
+
+
+    await transporter.sendMail(mailOptions);
+
+   
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 1000; 
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent successfully to your email.",
+    });
   } catch (error) {
+    console.error("Error sending OTP:", error);
     res.status(500).json({
-      succces: false,
+      success: false,
       errors: [{ field: "other", error: "Internal Server Error" }],
     });
   }
 };
+
 
 
 

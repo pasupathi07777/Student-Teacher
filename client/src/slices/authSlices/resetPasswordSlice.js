@@ -9,9 +9,9 @@ export const verfiyEmail = createAsyncThunk(
   'auth/login',
   async (credentials, {rejectWithValue}) => {
     try {
-      const errors = validateFields(credentials);
+      const errors = validateFields(credentials)
       if (Object.keys(errors).length > 0) {
-        return rejectWithValue({errors});
+        return rejectWithValue({errors})
       }
       console.log(credentials);
       const response = await axios.post(
@@ -29,34 +29,36 @@ export const verfiyEmail = createAsyncThunk(
 );
 
 
-export const loginUser = createAsyncThunk(
-  'auth/login',
-  async (credentials, {rejectWithValue}) => {
-    try {
-      const errors = validateFields(credentials);
-      if (Object.keys(errors).length > 0) {
-        return rejectWithValue({errors});
-      }
-      console.log(credentials);
-      const response = await axios.post(`${PORT}/api/auth/login`, credentials);
-      return response.data;
-    } catch (err) {
-      console.log(err, 'err');
+// export const loginUser = createAsyncThunk(
+//   'auth/login',
+//   async (credentials, {rejectWithValue}) => {
+//     try {
+//       const errors = validateFields(credentials);
+//       if (Object.keys(errors).length > 0) {
+//         return rejectWithValue({errors});
+//       }
+//       console.log(credentials);
+//       const response = await axios.post(`${PORT}/api/auth/login`, credentials);
+//       return response.data;
+//     } catch (err) {
+//       console.log(err, 'err');
 
-      const error = err.response?.data || {message: 'Something went wrong'};
-      return rejectWithValue(error);
-    }
-  },
-);
+//       const error = err.response?.data || {message: 'Something went wrong'};
+//       return rejectWithValue(error);
+//     }
+//   },
+// );
+
 
 const initialState = {
-  loginLoading: false,
-  loginForm: {
+  Loading: false,
+  resetPasswordForm: {
     email: '',
     password: '',
     errors: {
       email: '',
       password: '',
+      other:""
     },
   },
   currentUser: {},
@@ -66,42 +68,45 @@ const resetPasswordSlice = createSlice({
   name: 'resetPassword',
   initialState,
   reducers: {
-    updateLoginForm: (state, action) => {
+    updateResetPasswordForm: (state, action) => {
       const {field, value} = action.payload;
-      state.loginForm[field] = value;
-      state.loginForm.errors[field] = '';
+      state.resetPasswordForm[field] = value;
+      state.resetPasswordForm.errors[field] = '';
     },
-    setLoginErrors: (state, action) => {
+    setRestPasswordErrors: (state, action) => {
+      console.log("hii ka");
+      
       const {errors} = action.payload;
       console.log(errors);
       if (Array.isArray(errors)) {
         errors.forEach(errorObj => {
           const {field, error} = errorObj;
-          if (field && state.loginForm.errors.hasOwnProperty(field)) {
-            state.loginForm.errors[field] = error;
+          if (field && state.resetPasswordForm.errors.hasOwnProperty(field)) {
+            state.resetPasswordForm.errors[field] = error;
           }
         });
       }
-      console.log(state.loginForm, 'login form errors ');
+      console.log(state.resetPasswordForm, 'login form errors ');
     },
   },
   extraReducers: builder => {
     builder
-      .addCase(loginUser.pending, state => {
-        state.loginLoading = true;
+      .addCase(verfiyEmail.pending, state => {
+        state.Loading = true;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.loginLoading = false;
+      .addCase(verfiyEmail.fulfilled, (state, action) => {
+        state.Loading = false;
         state.currentUser = action.payload;
         state.loginForm = initialState.loginForm;
+        console.log(action.payload);
       })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loginLoading = false;
+      .addCase(verfiyEmail.rejected, (state, action) => {
+        state.Loading = false;
         console.log(action.payload, 'action.payload');
       });
   },
 });
 
-export const {updateLoginForm, setLoginErrors} = resetPasswordSlice.actions;
-export const resetPasswordState = state => state.resetPasswordReducer;
+export const {updateResetPasswordForm, setRestPasswordErrors} =resetPasswordSlice.actions;
+export const resetPasswordState = (state) => state.resetPasswordReducer;
 export default resetPasswordSlice.reducer;
