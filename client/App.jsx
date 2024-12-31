@@ -1,13 +1,13 @@
-
 import * as React from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './src/screens/auth/Login';
 import Signup from './src/screens/auth/Signup';
 import ResetPassword from './src/screens/auth/ResetPassword';
 import Home from './src/screens/Home';
 import FirstLoaderScreen from './src/screens/FirstLoaderScreen';
 import VerifyOtp from './src/screens/auth/VerifyOtp';
+import {ScrollView} from 'react-native';
 
 // Create a custom theme
 const MyTheme = {
@@ -15,8 +15,8 @@ const MyTheme = {
   colors: {
     ...DefaultTheme.colors,
     background: 'white', // Set background to white
-    text: 'black',   
-    color:"black"    // Set text color to black
+    text: 'black',
+    color: 'black', // Set text color to black
   },
 };
 
@@ -25,7 +25,7 @@ const Stack = createNativeStackNavigator();
 function RootStack() {
   return (
     <Stack.Navigator
-      initialRouteName="firstLoaderScreen"
+      initialRouteName="signup"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="signup" component={Signup} />
@@ -39,13 +39,10 @@ function RootStack() {
 
 export default function App() {
   return (
-    <NavigationContainer theme={MyTheme}>
-      <RootStack />
-    </NavigationContainer>
+   
+      <NavigationContainer theme={MyTheme}>
+        <RootStack />
+      </NavigationContainer>
+    
   );
 }
-
-
-
-
-

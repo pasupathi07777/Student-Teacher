@@ -138,7 +138,7 @@ export const verfiyEmail = async (req, res) => {
 };
 
 
-
+// reset password
 // generateOTP
 
 const generateOTP = () => {
@@ -183,6 +183,7 @@ export const otpSenter = async (req, res) => {
 
 
     await transporter.sendMail(mailOptions);
+    console.log("OTP sent successfully to your email.");
 
    
     user.otp = otp;
@@ -258,7 +259,6 @@ export const verifyOTP = async (req, res) => {
       });
     }
 
-    // Clear the OTP and expiry after successful verification
     user.otp = undefined;
     user.otpExpiry = undefined;
     await user.save();

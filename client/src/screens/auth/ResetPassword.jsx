@@ -20,8 +20,8 @@ import {
   setRestPasswordErrors,
 } from '../../slices/authSlices/resetPasswordSlice';
 
-const {width, height} = Dimensions.get('window');
 
+const {width, height} = Dimensions.get('window');
 const ResetPassword = ({navigation}) => {
   const {Loading, resetPasswordForm} = useSelector(resetPasswordState);
   console.log(resetPasswordForm.errors)
@@ -39,7 +39,7 @@ const ResetPassword = ({navigation}) => {
       .unwrap()
       .then(() => {
         Alert.alert('Success', 'Reset link sent successfully!');
-        navigation.navigate('login');
+        navigation.navigate('verifyOtp');
       })
       .catch(err => {
         if (err.errors) {

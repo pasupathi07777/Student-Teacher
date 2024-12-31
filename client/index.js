@@ -9,6 +9,7 @@ import { Provider } from 'react-redux'
 import { store } from './src/app/store';
 
 const RNRedux = () => (
+  
 
     <Provider store={store}>
       <App />

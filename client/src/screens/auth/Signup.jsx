@@ -222,7 +222,7 @@ const Signup = ({navigation}) => {
 
   return (
     <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
-      <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
+      <KeyboardAvoidingView style={{flex: 1}}>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <Text style={styles.title}>Create Your Account</Text>
           <Text style={styles.subtitle}>Sign up to get started</Text>
