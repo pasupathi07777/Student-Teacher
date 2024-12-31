@@ -29,6 +29,29 @@ export const verfiyEmail = createAsyncThunk(
 );
 
 
+export const otpVerify = createAsyncThunk(
+  'auth/otpVerify',
+  async (credentials, {rejectWithValue}) => {
+    try {
+
+      const response = await axios.post(
+        `${PORT}/api/auth/verifyOTP`,
+        credentials,
+      );
+      return response.data;
+    } catch (err) {
+      console.log(err, 'err');
+
+      const error = err.response?.data || {message: 'Something went wrong'};
+      return rejectWithValue(error);
+    }
+  },
+);
+
+
+
+
+
 
 const initialState = {
   Loading: false,
@@ -42,6 +65,10 @@ const initialState = {
     },
   },
   currentUser: {},
+  
+
+
+
 };
 
 const resetPasswordSlice = createSlice({
@@ -71,19 +98,32 @@ const resetPasswordSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+    // verfiyEmail
       .addCase(verfiyEmail.pending, state => {
         state.Loading = true;
       })
       .addCase(verfiyEmail.fulfilled, (state, action) => {
         state.Loading = false;
-        state.currentUser = action.payload;
         state.loginForm = initialState.loginForm;
         console.log(action.payload);
       })
       .addCase(verfiyEmail.rejected, (state, action) => {
         state.Loading = false;
         console.log(action.payload, 'action.payload');
-      });
+      })
+      
+      // otpVerify
+      .addCase(otpVerify.pending, state => {
+        state.Loading = true;
+      })
+      .addCase(otpVerify.fulfilled, (state, action) => {
+        state.Loading = false;
+        console.log(action.payload);
+      })
+      .addCase(otpVerify.rejected, (state, action) => {
+        state.Loading = false;
+        console.log(action.payload, 'action.payload');
+      })
   },
 });
 

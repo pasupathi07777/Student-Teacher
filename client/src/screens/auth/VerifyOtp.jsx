@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -12,19 +12,21 @@ import {
   Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {useSelector, useDispatch} from 'react-redux';
+import { selectOtpState, updateOtp, verifyOtp } from '../../slices/authSlices/otpSlice';
+
 
 const {width, height} = Dimensions.get('window');
 
 const VerifyOtp = ({navigation}) => {
-  const [otp, setOtp] = useState(['', '', '', '', '']);
-  const [loading, setLoading] = useState(false);
+
+  const {loading,otp,error,success} = useSelector(selectOtpState);
+  const dispatch = useDispatch();
 
   const handleInputChange = (value, index) => {
     if (isNaN(value)) return;
 
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+    dispatch(updateOtp({index, value}));
 
     if (value && index < otp.length - 1) {
       const nextInput = `otpInput${index + 1}`;
@@ -33,18 +35,19 @@ const VerifyOtp = ({navigation}) => {
   };
 
   const handleVerify = () => {
+    console.log(otp);
+    
     const otpCode = otp.join('');
     if (otpCode.length !== 5) {
       Alert.alert('Error', 'Please enter a valid 5-digit OTP');
       return;
     }
 
-    setLoading(true);
-
+    dispatch(verifyOtp(otpCode));
   };
 
   return (
-    <ScrollView>
+
       <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
         <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
           <ScrollView contentContainerStyle={styles.scrollView}>
@@ -79,14 +82,14 @@ const VerifyOtp = ({navigation}) => {
             <View style={styles.footer}>
               <Text style={styles.footerText}>Didn't receive an OTP?</Text>
               <Pressable
-                onPress={() => Alert.alert('Resend OTP', 'OTP resent.')}>
+                onPress={() => Alert.alert('Resend OTP', 'OTP resent.')} >
                 <Text style={styles.footerLink}> Resend</Text>
               </Pressable>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </LinearGradient>
-    </ScrollView>
+
   );
 };
 

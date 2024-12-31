@@ -3,6 +3,9 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { validateFields } from "../utils/functions.js";
 import nodemailer from "nodemailer";
+
+
+
 // signup
 export const signup = async (req, res) => {
   const { username, email, password } = req.body;
@@ -241,6 +244,7 @@ export const verifyOTP = async (req, res) => {
         errors: [
           {
             field: "otp",
+
             error: "Invalid OTP. Please try again.",
           },
         ],
@@ -258,6 +262,7 @@ export const verifyOTP = async (req, res) => {
         ],
       });
     }
+
 
     user.otp = undefined;
     user.otpExpiry = undefined;
@@ -277,8 +282,43 @@ export const verifyOTP = async (req, res) => {
 };
 
 
+// reset password
 
 
+
+export const resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        errors: [
+          {
+            field: "email",
+            error: "User does not exist",
+          },
+        ],
+      });
+    }
+
+    user.password = newPassword; 
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully.",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({
+      success: false,
+      errors: [{ field: "other", error: "Internal Server Error" }],
+    });
+  }
+};
 
 
 
