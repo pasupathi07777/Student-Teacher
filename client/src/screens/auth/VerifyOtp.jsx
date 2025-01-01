@@ -19,7 +19,7 @@ import {
   updateOtpErrors,
   verifyOtp,
 } from '../../slices/authSlices/otpSlice';
-import {resetPasswordState} from '../../slices/authSlices/resetPasswordSlice';
+import {resetPasswordState} from '../../slices/authSlices/verifyEmailSlice';
 
 const {width, height} = Dimensions.get('window');
 

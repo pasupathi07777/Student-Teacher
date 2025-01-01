@@ -18,7 +18,7 @@ import {
   updateResetPasswordForm,
   verfiyEmail,
   setRestPasswordErrors,
-} from '../../slices/authSlices/resetPasswordSlice';
+} from '../../slices/authSlices/verifyEmailSlice';
 
 
 

@@ -26,7 +26,7 @@ const Stack = createNativeStackNavigator();
 function RootStack() {
   return (
     <Stack.Navigator
-      initialRouteName="EmailVerify"
+      initialRouteName="ResetPassword"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="signup" component={Signup} />

@@ -208,68 +208,6 @@ export const otpSenter = async (req, res) => {
 };
 
 
-// verify OTP
-// export const verifyOTP = async (req, res) => {
-//   const { email, otp } = req.body;
-//   console.log(email, otp, "verifyOTP");
-  
-
-//   try {
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(400).json({
-//         success: false,
-//         error: {field: "email",error: "User does not exist"},
-        
-//       });
-//     }
-
-//     if (!user.otp || !user.otpExpiry) {
-//       return res.status(400).json({
-//         success: false,
-//         error: {field: "otp",error: "No OTP found "},
-      
-//       });
-//     }
-
-//     if (user.otp !== otp) {
-//       return res.status(400).json({
-//         success: false,
-//         error:  {  field: "otp", error: "Invalid OTP."},
-        
-//       });
-//     }
-
-//     if (Date.now() > user.otpExpiry) {
-//       return res.status(400).json({
-//         success: false,
-//         error: {
-//           field: "otp",
-//             error: "OTP has expired"
-//           },
-        
-//       });
-//     }
-
-
-//     user.otp = undefined;
-//     user.otpExpiry = undefined;
-//     await user.save();
-
-//     res.status(200).json({
-//       success: true,
-//       message: "OTP verified successfully.",
-//     });
-//   } catch (error) {
-//     console.error("Error verifying OTP:", error);
-//     res.status(500).json({
-//       success: false,
-//       error: { field: "other", error: "Internal Server Error" }
-//     });
-//   }
-// };
-
 export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
   console.log("Verifying OTP:", { email, otp });
@@ -324,39 +262,64 @@ export const verifyOTP = async (req, res) => {
 
 
 
-// reset password 
+// Reset Password Controller
 export const resetPassword = async (req, res) => {
-  const { email, newPassword } = req.body;
+  const { email, password } = req.body;
+console.log("hited");
 
-  try {   
+  // Validate input fields
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      errors: 
+        {
+          field: !email ? "email" : "password",
+          error: !email ? "Email is required" : "Password is required",
+        },
+      
+    });
+  }
+
+  try {
+    // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
-        errors: [
+        errors: 
           {
             field: "email",
             error: "User does not exist",
-          },
-        ],
+          }
+      
       });
     }
 
-    user.password = newPassword; 
+    // Update the user's password
+    user.password = password; // Ensure password hashing is applied here
     await user.save();
 
+    // Send success response
     res.status(200).json({
       success: true,
       message: "Password reset successfully.",
     });
   } catch (error) {
     console.error("Error resetting password:", error);
+
+    // Send a general server error
     res.status(500).json({
       success: false,
-      errors: [{ field: "other", error: "Internal Server Error" }],
+      errors: 
+        {
+          field: "other",
+          error: "An unexpected error occurred. Please try again later.",
+        },
+      
     });
   }
 };
+
 
 
 

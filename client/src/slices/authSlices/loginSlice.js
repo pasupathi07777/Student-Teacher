@@ -11,7 +11,7 @@ const PORT = backendUrl();
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
-    try {
+    try { 
       const errors = validateFields(credentials);
       if (Object.keys(errors).length > 0) {
         return rejectWithValue({ errors });

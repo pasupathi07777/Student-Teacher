@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
 import  signupSlice  from '../slices/authSlices/signupSlice'
 import loginSlice from '../slices/authSlices/loginSlice';
-import resetPasswordSlice from '../slices/authSlices/resetPasswordSlice';
+import verifyEmailSlice from '../slices/authSlices/verifyEmailSlice';
 import  otpSlice  from '../slices/authSlices/otpSlice';
+import  resetPasswordSlice  from '../slices/authSlices/ResetPasswordSlice';
 
 
 
@@ -11,7 +12,8 @@ export const store = configureStore({
 
     signupReducer: signupSlice,
     loginReducer: loginSlice,
-    resetPasswordReducer: resetPasswordSlice,
+    resetPasswordReducer: verifyEmailSlice,
     otpReducer: otpSlice,
+    resetPasswordReducer: resetPasswordSlice,
   },
 });

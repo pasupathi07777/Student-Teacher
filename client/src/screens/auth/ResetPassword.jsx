@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,52 +6,88 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Dimensions,
   KeyboardAvoidingView,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  updateField,
+  validateFields,
+  resetPassword,
+  clearStatus,
+  resetPasswordStates,
+} from '../../slices/authSlices/ResetPasswordSlice';
+import { resetPasswordState } from '../../slices/authSlices/verifyEmailSlice';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-const ResetPassword = () => {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+const ResetPassword = ({ navigation }) => {
+  const dispatch = useDispatch();
 
-  const handleReset = () => {
-    if (newPassword === confirmPassword) {
-      Alert.alert('Success', 'Password successfully reset!');
-    } else {
-      Alert.alert('Error', 'Passwords do not match.');
-    }
+  const {
+    password,
+    confirmPassword,
+    loading,
+    success,
+    error,
+    validationErrors,
+  } = useSelector(resetPasswordStates);
+  const { verfiyEmail } = useSelector(resetPasswordState);
+
+  const handleChange = (field, value) => {
+    dispatch(updateField({ field, value }));
   };
+
+  const handleSubmit = () => {
+  
+    dispatch(resetPassword({ email: verfiyEmail, password,confirmPassword }))
+  };
+
+
 
   return (
     <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
-      <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
           <Text style={styles.title}>Reset Password</Text>
+          <Text style={styles.subtitle}>Enter your new password</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="New Password"
-            placeholderTextColor="#ccc"
-            secureTextEntry
-            value={newPassword}
-            onChangeText={setNewPassword}
-          />
+          <View style={styles.inputContainer}>
+            {validationErrors.password && <Text style={styles.errorText}>{validationErrors.password}</Text>}
+            <TextInput
+              style={[styles.input, validationErrors.password && styles.inputError]}
+              placeholder="New Password"
+              placeholderTextColor="#ccc"
+              value={password}
+              onChangeText={(value) => handleChange('password', value)}
+              secureTextEntry
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            placeholderTextColor="#ccc"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-          />
+          <View style={styles.inputContainer}>
+            {validationErrors.confirmPassword && (
+              <Text style={styles.errorText}>{validationErrors.confirmPassword}</Text>
+            )}
+            <TextInput
+              style={[styles.input, validationErrors.confirmPassword && styles.inputError]}
+              placeholder="Confirm Password"
+              placeholderTextColor="#ccc"
+              value={confirmPassword}
+              onChangeText={(value) => handleChange('confirmPassword', value)}
+              secureTextEntry
+            />
+          </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleReset}>
-            <Text style={styles.buttonText}>Reset Password</Text>
+          <TouchableOpacity
+            style={[styles.button, loading && { opacity: 0.6 }]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Resetting...' : 'Reset Password'}
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -59,7 +95,6 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
 
 const styles = StyleSheet.create({
   container: {
@@ -76,10 +111,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: {width: 1, height: 1},
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 4,
     marginBottom: height * 0.02,
     textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: Math.min(18, width * 0.045),
+    color: '#FFFFFF',
+    marginBottom: height * 0.03,
+    textAlign: 'center',
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: height * 0.02,
   },
   input: {
     width: '100%',
@@ -88,8 +133,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: Math.min(16, width * 0.04),
     color: '#333',
-    elevation: 2, // Slight shadow for input boxes
-    marginBottom: height * 0.02,
+    elevation: 2,
+  },
+  inputError: {
+    borderColor: '#FF6F61',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#FF6F61',
+    fontSize: 12,
+    marginBottom: 5,
+    textAlign: 'right',
   },
   button: {
     width: '100%',
@@ -108,115 +162,5 @@ const styles = StyleSheet.create({
 });
 
 
-// import React from 'react';
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   Alert,
-//   Dimensions,
-//   KeyboardAvoidingView,
-//   ScrollView,
-// } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
-// import {useSelector, useDispatch} from 'react-redux';
-// import {updateResetPasswordForm, resetPassword} from '../../slices/authSlices/resetPasswordSlice';
 
-// const {width, height} = Dimensions.get('window');
-
-// const ResetPassword = () => {
-//   const dispatch = useDispatch();
-//   const {resetPasswordForm, loading, errors} = useSelector();
-
-//   const handleResetPassword = () => {
-//     const {newPassword, confirmPassword} = resetPasswordForm;
-//     if (newPassword !== confirmPassword) {
-//       Alert.alert('Error', 'Passwords do not match.');
-//       return;
-//     }
-//     dispatch(resetPassword({password: newPassword}));
-//   };
-
-//   const handleInputChange = (field, value) => {
-//     dispatch(updateResetPasswordForm({field, value}));
-//   };
-
-//   return (
-//     <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
-//       <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
-//         <ScrollView contentContainerStyle={styles.scrollView}>
-//           <Text style={styles.title}>Reset Password</Text>
-
-//           <TextInput
-//             style={styles.input}
-//             placeholder="New Password"
-//             placeholderTextColor="#ccc"
-//             secureTextEntry
-//             value={resetPasswordForm.newPassword}
-//             onChangeText={value => handleInputChange('newPassword', value)}
-//           />
-//           {errors.newPassword && (
-//             <Text style={styles.errorText}>{errors.newPassword}</Text>
-//           )}
-
-//           <TextInput
-//             style={styles.input}
-//             placeholder="Confirm Password"
-//             placeholderTextColor="#ccc"
-//             secureTextEntry
-//             value={resetPasswordForm.confirmPassword}
-//             onChangeText={value => handleInputChange('confirmPassword', value)}
-//           />
-//           {errors.confirmPassword && (
-//             <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-//           )}
-
-//           <TouchableOpacity
-//             style={styles.button}
-//             onPress={handleResetPassword}
-//             disabled={loading}>
-//             <Text style={styles.buttonText}>
-//               {loading ? 'Resetting...' : 'Reset Password'}
-//             </Text>
-//           </TouchableOpacity>
-//         </ScrollView>
-//       </KeyboardAvoidingView>
-//     </LinearGradient>
-//   );
-// };
-
-// export default ResetPassword;
-
-// const styles = StyleSheet.create({
-//   container: {flex: 1},
-//   scrollView: {
-//     flexGrow: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     padding: 20,
-//   },
-//   title: {
-//     fontSize: Math.min(30, width * 0.08),
-//     fontWeight: 'bold',
-//     color: '#FFF',
-//     marginBottom: 20,
-//   },
-//   input: {
-//     width: '100%',
-//     padding: 15,
-//     backgroundColor: '#FFF',
-//     borderRadius: 8,
-//     marginBottom: 20,
-//   },
-//   button: {
-//     width: '100%',
-//     padding: 15,
-//     backgroundColor: '#FF6F61',
-//     borderRadius: 8,
-//     alignItems: 'center',
-//   },
-//   buttonText: {color: '#FFF', fontSize: 18, fontWeight: 'bold'},
-//   errorText: {color: 'red', marginBottom: 10},
-// });
+export default ResetPassword;
