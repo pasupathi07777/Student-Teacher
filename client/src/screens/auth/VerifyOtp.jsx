@@ -13,14 +13,19 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useSelector, useDispatch} from 'react-redux';
-import { selectOtpState, updateOtp, verifyOtp } from '../../slices/authSlices/otpSlice';
-
+import {
+  selectOtpState,
+  updateOtp,
+  updateOtpErrors,
+  verifyOtp,
+} from '../../slices/authSlices/otpSlice';
+import {resetPasswordState} from '../../slices/authSlices/resetPasswordSlice';
 
 const {width, height} = Dimensions.get('window');
 
 const VerifyOtp = ({navigation}) => {
-
-  const {loading,otp,error,success} = useSelector(selectOtpState);
+  const {loading, otp, OtpErrors} = useSelector(selectOtpState);
+  const {verfiyEmail} = useSelector(resetPasswordState);
   const dispatch = useDispatch();
 
   const handleInputChange = (value, index) => {
@@ -35,61 +40,62 @@ const VerifyOtp = ({navigation}) => {
   };
 
   const handleVerify = () => {
-    console.log(otp);
-    
     const otpCode = otp.join('');
     if (otpCode.length !== 5) {
       Alert.alert('Error', 'Please enter a valid 5-digit OTP');
       return;
     }
 
-    dispatch(verifyOtp(otpCode));
+    dispatch(verifyOtp({otpCode, verfiyEmail}))
+      .unwrap()
+      .then(() => {
+        Alert.alert('Success', 'Reset link sent successfully!');
+        navigation.navigate('ResetPassword');
+      })
+
   };
 
   return (
+    <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
+      <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <Text style={styles.title}>Verify OTP</Text>
+          <Text style={[styles.subtitle, OtpErrors && {color: 'red'}]}>
+            {OtpErrors ? OtpErrors : 'Enter the 5-digit OTP sent to your email'}
+          </Text>
 
-      <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
-        <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
-          <ScrollView contentContainerStyle={styles.scrollView}>
-            <Text style={styles.title}>Verify OTP</Text>
-            <Text style={styles.subtitle}>
-              Enter the 5-digit OTP sent to your email.
+          <View style={styles.otpContainer}>
+            {otp.map((digit, index) => (
+              <TextInput
+                key={index}
+                style={styles.otpInput}
+                keyboardType="numeric"
+                maxLength={1}
+                value={digit}
+                onChangeText={value => handleInputChange(value, index)}
+                ref={ref => (this[`otpInput${index}`] = ref)}
+              />
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleVerify}
+            disabled={loading}>
+            <Text style={styles.buttonText}>
+              {loading ? 'Verifying...' : 'Verify OTP'}
             </Text>
+          </TouchableOpacity>
 
-            <View style={styles.otpContainer}>
-              {otp.map((digit, index) => (
-                <TextInput
-                  key={index}
-                  style={styles.otpInput}
-                  keyboardType="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChangeText={value => handleInputChange(value, index)}
-                  ref={ref => (this[`otpInput${index}`] = ref)}
-                />
-              ))}
-            </View>
-
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleVerify}
-              disabled={loading}>
-              <Text style={styles.buttonText}>
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Didn't receive an OTP?</Text>
-              <Pressable
-                onPress={() => Alert.alert('Resend OTP', 'OTP resent.')} >
-                <Text style={styles.footerLink}> Resend</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </LinearGradient>
-
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Didn't receive an OTP?</Text>
+            <Pressable onPress={() => Alert.alert('Resend OTP', 'OTP resent.')}>
+              <Text style={styles.footerLink}> Resend</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 

@@ -145,7 +145,7 @@ export const verfiyEmail = async (req, res) => {
 // generateOTP
 
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(10000 + Math.random() * 90000).toString();
 };
 
 
@@ -196,6 +196,7 @@ export const otpSenter = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "OTP sent successfully to your email.",
+      email: user.email,
     });
   } catch (error) {
     console.error("Error sending OTP:", error);
@@ -208,8 +209,70 @@ export const otpSenter = async (req, res) => {
 
 
 // verify OTP
+// export const verifyOTP = async (req, res) => {
+//   const { email, otp } = req.body;
+//   console.log(email, otp, "verifyOTP");
+  
+
+//   try {
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({
+//         success: false,
+//         error: {field: "email",error: "User does not exist"},
+        
+//       });
+//     }
+
+//     if (!user.otp || !user.otpExpiry) {
+//       return res.status(400).json({
+//         success: false,
+//         error: {field: "otp",error: "No OTP found "},
+      
+//       });
+//     }
+
+//     if (user.otp !== otp) {
+//       return res.status(400).json({
+//         success: false,
+//         error:  {  field: "otp", error: "Invalid OTP."},
+        
+//       });
+//     }
+
+//     if (Date.now() > user.otpExpiry) {
+//       return res.status(400).json({
+//         success: false,
+//         error: {
+//           field: "otp",
+//             error: "OTP has expired"
+//           },
+        
+//       });
+//     }
+
+
+//     user.otp = undefined;
+//     user.otpExpiry = undefined;
+//     await user.save();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "OTP verified successfully.",
+//     });
+//   } catch (error) {
+//     console.error("Error verifying OTP:", error);
+//     res.status(500).json({
+//       success: false,
+//       error: { field: "other", error: "Internal Server Error" }
+//     });
+//   }
+// };
+
 export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
+  console.log("Verifying OTP:", { email, otp });
 
   try {
     const user = await User.findOne({ email });
@@ -217,80 +280,55 @@ export const verifyOTP = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        errors: [
-          {
-            field: "email",
-            error: "User does not exist",
-          },
-        ],
+        error: { field: "email", error: "User does not exist" },
       });
     }
 
     if (!user.otp || !user.otpExpiry) {
       return res.status(400).json({
         success: false,
-        errors: [
-          {
-            field: "otp",
-            error: "No OTP found for this user. Please request a new OTP.",
-          },
-        ],
+        error: { field: "otp", error: "No OTP found" },
       });
     }
 
     if (user.otp !== otp) {
       return res.status(400).json({
         success: false,
-        errors: [
-          {
-            field: "otp",
-
-            error: "Invalid OTP. Please try again.",
-          },
-        ],
+        error: { field: "otp", error: "Invalid OTP" },
       });
     }
 
-    if (Date.now() > user.otpExpiry) {
+    if (new Date(user.otpExpiry).getTime() < Date.now()) {
       return res.status(400).json({
         success: false,
-        errors: [
-          {
-            field: "otp",
-            error: "OTP has expired. Please request a new OTP.",
-          },
-        ],
+        error: { field: "otp", error: "OTP has expired" },
       });
     }
-
 
     user.otp = undefined;
     user.otpExpiry = undefined;
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "OTP verified successfully.",
     });
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      errors: [{ field: "other", error: "Internal Server Error" }],
+      error: { field: "other", error: "Internal Server Error" },
     });
   }
 };
 
 
-// reset password
 
-
-
+// reset password 
 export const resetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
-  try {
-    
+  try {   
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({

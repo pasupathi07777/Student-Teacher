@@ -1,57 +1,146 @@
+// import React, {useState} from 'react';
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   TouchableOpacity,
+//   StyleSheet,
+//   Alert,
+//   Dimensions,
+//   KeyboardAvoidingView,
+//   ScrollView,
+// } from 'react-native';
+// import LinearGradient from 'react-native-linear-gradient';
+
+// const {width, height} = Dimensions.get('window');
+
+// const ResetPassword = () => {
+//   const [newPassword, setNewPassword] = useState('');
+//   const [confirmPassword, setConfirmPassword] = useState('');
+
+//   const handleReset = () => {
+//     if (newPassword === confirmPassword) {
+//       Alert.alert('Success', 'Password successfully reset!');
+//     } else {
+//       Alert.alert('Error', 'Passwords do not match.');
+//     }
+//   };
+
+//   return (
+//     <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
+//       <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
+//         <ScrollView contentContainerStyle={styles.scrollView}>
+//           <Text style={styles.title}>Reset Password</Text>
+
+//           <TextInput
+//             style={styles.input}
+//             placeholder="New Password"
+//             placeholderTextColor="#ccc"
+//             secureTextEntry
+//             value={newPassword}
+//             onChangeText={setNewPassword}
+//           />
+
+//           <TextInput
+//             style={styles.input}
+//             placeholder="Confirm Password"
+//             placeholderTextColor="#ccc"
+//             secureTextEntry
+//             value={confirmPassword}
+//             onChangeText={setConfirmPassword}
+//           />
+
+//           <TouchableOpacity style={styles.button} onPress={handleReset}>
+//             <Text style={styles.buttonText}>Reset Password</Text>
+//           </TouchableOpacity>
+//         </ScrollView>
+//       </KeyboardAvoidingView>
+//     </LinearGradient>
+//   );
+// };
+
+// export default ResetPassword;
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//   },
+//   scrollView: {
+//     flexGrow: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     padding: 20,
+//   },
+//   title: {
+//     fontSize: Math.min(30, width * 0.08),
+//     fontWeight: 'bold',
+//     color: '#FFFFFF',
+//     textShadowColor: 'rgba(0, 0, 0, 0.25)',
+//     textShadowOffset: {width: 1, height: 1},
+//     textShadowRadius: 4,
+//     marginBottom: height * 0.02,
+//     textAlign: 'center',
+//   },
+//   input: {
+//     width: '100%',
+//     padding: 15,
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 8,
+//     fontSize: Math.min(16, width * 0.04),
+//     color: '#333',
+//     elevation: 2, // Slight shadow for input boxes
+//     marginBottom: height * 0.02,
+//   },
+//   button: {
+//     width: '100%',
+//     padding: 15,
+//     backgroundColor: '#FF6F61',
+//     borderRadius: 8,
+//     alignItems: 'center',
+//     elevation: 2,
+//     marginTop: 10,
+//   },
+//   buttonText: {
+//     color: '#FFFFFF',
+//     fontSize: Math.min(18, width * 0.045),
+//     fontWeight: 'bold',
+//   },
+// });
+
+
 import React from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Dimensions,
   KeyboardAvoidingView,
   ScrollView,
-  Pressable,
-  Dimensions,
-  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  resetPasswordState,
-  updateResetPasswordForm,
-  verfiyEmail,
-  setRestPasswordErrors,
-} from '../../slices/authSlices/resetPasswordSlice';
-
+import {useSelector, useDispatch} from 'react-redux';
+import {updateResetPasswordForm, resetPassword} from '../redux/authSlice';
 
 const {width, height} = Dimensions.get('window');
 
-
-const ResetPassword = ({navigation}) => {
-  const {Loading, resetPasswordForm} = useSelector(resetPasswordState);
-  console.log(resetPasswordForm.errors)
-  
+const ResetPassword = () => {
   const dispatch = useDispatch();
+  const {resetPasswordForm, loading, errors} = useSelector(state => state.auth);
 
-  const handleChange = (field, value) => {
-    dispatch(updateResetPasswordForm({field, value}));
+  const handleResetPassword = () => {
+    const {newPassword, confirmPassword} = resetPasswordForm;
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
+      return;
+    }
+    dispatch(resetPassword({password: newPassword}));
   };
 
-  const handleSubmit = () => {
-    const {email} = resetPasswordForm;
-
-    dispatch(verfiyEmail({email}))
-      .unwrap()
-      .then(() => {
-        Alert.alert('Success', 'Reset link sent successfully!');
-        navigation.navigate('verifyOtp');
-      })
-      .catch(err => {
-        if (err.errors) {
-          console.log(err);
-          
-          dispatch(setRestPasswordErrors({errors: err.errors}));
-        } else {
-          Alert.alert('Failed', err.error || 'Something went wrong.');
-        }
-      });
+  const handleInputChange = (field, value) => {
+    dispatch(updateResetPasswordForm({field, value}));
   };
 
   return (
@@ -60,58 +149,48 @@ const ResetPassword = ({navigation}) => {
         <ScrollView contentContainerStyle={styles.scrollView}>
           <Text style={styles.title}>Reset Password</Text>
 
-          <Text style={styles.instructions}>
-            Enter your registered email address, and we'll send you instructions
-            to reset your password.
-          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="New Password"
+            placeholderTextColor="#ccc"
+            secureTextEntry
+            value={resetPasswordForm.newPassword}
+            onChangeText={value => handleInputChange('newPassword', value)}
+          />
+          {errors.newPassword && (
+            <Text style={styles.errorText}>{errors.newPassword}</Text>
+          )}
 
-          <View style={styles.inputContainer}>
-            {resetPasswordForm.errors.email && (
-              <Text style={styles.errorText}>
-                {resetPasswordForm.errors.email}
-              </Text>
-            )}
-            <TextInput
-              style={[
-                styles.input,
-                resetPasswordForm.errors.email && styles.inputError,
-              ]}
-              placeholder="Email"
-              value={resetPasswordForm.email}
-              onChangeText={value => handleChange('email', value)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#ccc"
-            />
-
-          </View>
-
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#ccc"
+            secureTextEntry
+            value={resetPasswordForm.confirmPassword}
+            onChangeText={value => handleInputChange('confirmPassword', value)}
+          />
+          {errors.confirmPassword && (
+            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+          )}
 
           <TouchableOpacity
-            style={[styles.button, Loading && styles.buttonDisabled]}
-            onPress={handleSubmit}
-            disabled={Loading}>
+            style={styles.button}
+            onPress={handleResetPassword}
+            disabled={loading}>
             <Text style={styles.buttonText}>
-              {Loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? 'Resetting...' : 'Reset Password'}
             </Text>
           </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Remember your password?</Text>
-            <Pressable onPress={() => navigation.navigate('login')}>
-              <Text style={styles.footerLink}> Log In</Text>
-            </Pressable>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
 };
 
+export default ResetPassword;
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: {flex: 1},
   scrollView: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -121,42 +200,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Math.min(30, width * 0.08),
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 4,
-    marginBottom: height * 0.02,
-    textAlign: 'center',
-  },
-  instructions: {
-    fontSize: Math.min(16, width * 0.04),
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: height * 0.03,
-    lineHeight: 22,
-  },
-  inputContainer: {
-    width: '100%',
-    marginBottom: height * 0.02,
+    color: '#FFF',
+    marginBottom: 20,
   },
   input: {
     width: '100%',
     padding: 15,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF',
     borderRadius: 8,
-    fontSize: Math.min(16, width * 0.04),
-    color: '#333',
-    elevation: 2,
-  },
-  inputError: {
-    borderColor: '#FF6F61',
-    borderWidth: 1,
-  },
-  errorText: {
-    color: '#FF6F61',
-    fontSize: 12,
-    marginBottom: 5,
-    textAlign: 'right',
+    marginBottom: 20,
   },
   button: {
     width: '100%',
@@ -164,33 +216,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF6F61',
     borderRadius: 8,
     alignItems: 'center',
-    elevation: 2,
-    marginTop: 10,
   },
-  buttonDisabled: {
-    backgroundColor: '#AAA',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: Math.min(18, width * 0.045),
-    fontWeight: 'bold',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: height * 0.03,
-  },
-  footerText: {
-    fontSize: Math.min(14, width * 0.035),
-    color: '#FFFFFF',
-  },
-  footerLink: {
-    fontSize: Math.min(14, width * 0.035),
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginLeft: 5,
-  },
+  buttonText: {color: '#FFF', fontSize: 18, fontWeight: 'bold'},
+  errorText: {color: 'red', marginBottom: 10},
 });
-
-export default ResetPassword;

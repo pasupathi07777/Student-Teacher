@@ -11,8 +11,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useDispatch} from 'react-redux';
 import {getUserAuth} from '../slices/authSlices/loginSlice';
 
-const {width, height} = Dimensions.get('window'); 
-
+const {width, height} = Dimensions.get('window');  
 const FirstLoaderScreen = ({navigation}) => {
   const dispatch = useDispatch();
 
