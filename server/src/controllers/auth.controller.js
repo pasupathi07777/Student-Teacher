@@ -296,13 +296,15 @@ console.log("hited");
     }
 
     // Update the user's password
-    user.password = password; // Ensure password hashing is applied here
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
     await user.save();
 
     // Send success response
     res.status(200).json({
       success: true,
       message: "Password reset successfully.",
+      user
     });
   } catch (error) {
     console.error("Error resetting password:", error);

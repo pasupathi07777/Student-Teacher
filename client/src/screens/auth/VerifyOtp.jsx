@@ -16,18 +16,17 @@ import {useSelector, useDispatch} from 'react-redux';
 import {
   selectOtpState,
   updateOtp,
-  updateOtpErrors,
   verifyOtp,
+  clearOtp,
 } from '../../slices/authSlices/otpSlice';
-import {resetPasswordState} from '../../slices/authSlices/verifyEmailSlice';
+import { verifyEmailState} from '../../slices/authSlices/verifyEmailSlice';
 
 const {width, height} = Dimensions.get('window');
 
 const VerifyOtp = ({navigation}) => {
   const {loading, otp, OtpErrors} = useSelector(selectOtpState);
-  const {verfiyEmail} = useSelector(resetPasswordState);
-  const dispatch = useDispatch();
-
+  const {verfiyEmail} = useSelector(verifyEmailState);
+  const dispatch = useDispatch()
   const handleInputChange = (value, index) => {
     if (isNaN(value)) return;
 
@@ -51,6 +50,8 @@ const VerifyOtp = ({navigation}) => {
       .then(() => {
         Alert.alert('Success', 'Reset link sent successfully!');
         navigation.navigate('ResetPassword');
+        dispatch(clearOtp());
+        
       })
 
   };
@@ -89,8 +90,12 @@ const VerifyOtp = ({navigation}) => {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Didn't receive an OTP?</Text>
-            <Pressable onPress={() => Alert.alert('Resend OTP', 'OTP resent.')}>
-              <Text style={styles.footerLink}> Resend</Text>
+            <Pressable
+              onPress={() => {
+               dispatch(clearOtp()); // Ensure this function is defined
+                navigation.navigate('EmailVerify'); // Navigate to EmailVerify
+              }}>
+              <Text style={styles.footerLink}>Resend</Text>
             </Pressable>
           </View>
         </ScrollView>

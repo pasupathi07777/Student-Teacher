@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -11,80 +11,105 @@ import {
   Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   updateField,
-  validateFields,
   resetPassword,
-  clearStatus,
   resetPasswordStates,
-} from '../../slices/authSlices/ResetPasswordSlice';
-import { resetPasswordState } from '../../slices/authSlices/verifyEmailSlice';
+  setResetPasswordErrors,
+} from '../../slices/authSlices/resetPasswordSlice';
+import {resetPasswordState, verifyEmailState} from '../../slices/authSlices/verifyEmailSlice';
+const {width, height} = Dimensions.get('window');
 
-const { width, height } = Dimensions.get('window');
-
-const ResetPassword = ({ navigation }) => {
+const ResetPassword = ({navigation}) => {
   const dispatch = useDispatch();
 
   const {
     password,
     confirmPassword,
     loading,
-    success,
-    error,
     validationErrors,
+    resetPasswordForm,
   } = useSelector(resetPasswordStates);
-  const { verfiyEmail } = useSelector(resetPasswordState);
+  const {verfiyEmail} = useSelector(verifyEmailState);
 
   const handleChange = (field, value) => {
-    dispatch(updateField({ field, value }));
+    dispatch(updateField({field, value}));
   };
+
 
   const handleSubmit = () => {
-  
-    dispatch(resetPassword({ email: verfiyEmail, password,confirmPassword }))
+    dispatch(
+      resetPassword({
+        email: verfiyEmail,
+        password: resetPasswordForm.password,
+        confirmPassword: resetPasswordForm.confirmPassword,
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        Alert.alert('Success', 'reset successful!');
+        navigation.navigate('login');
+      })
+      .catch(err => {
+        if (err.errors) {
+          console.log(err.errors);
+          dispatch(setResetPasswordErrors({errors: err.errors}));
+        } else {
+          Alert.alert('Login Failed', err.error || 'Something went wrong.');
+        }
+      });
   };
-
-
 
   return (
     <LinearGradient colors={['#6200EE', '#FF6F61']} style={styles.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
         <ScrollView contentContainerStyle={styles.scrollView}>
           <Text style={styles.title}>Reset Password</Text>
           <Text style={styles.subtitle}>Enter your new password</Text>
 
           <View style={styles.inputContainer}>
-            {validationErrors.password && <Text style={styles.errorText}>{validationErrors.password}</Text>}
+            {resetPasswordForm.errors.password && (
+              <Text style={styles.errorText}>
+                {resetPasswordForm.errors.password}
+              </Text>
+            )}
             <TextInput
-              style={[styles.input, validationErrors.password && styles.inputError]}
+              style={[
+                styles.input,
+                validationErrors.password && styles.inputError,
+              ]}
               placeholder="New Password"
               placeholderTextColor="#ccc"
-              value={password}
-              onChangeText={(value) => handleChange('password', value)}
+              value={resetPasswordForm.password}
+              onChangeText={value => handleChange('password', value)}
               secureTextEntry
             />
           </View>
 
           <View style={styles.inputContainer}>
-            {validationErrors.confirmPassword && (
-              <Text style={styles.errorText}>{validationErrors.confirmPassword}</Text>
+            {resetPasswordForm.errors.confirmPassword && (
+              <Text style={styles.errorText}>
+                {resetPasswordForm.errors.confirmPassword}
+              </Text>
             )}
             <TextInput
-              style={[styles.input, validationErrors.confirmPassword && styles.inputError]}
+              style={[
+                styles.input,
+                validationErrors.confirmPassword && styles.inputError,
+              ]}
               placeholder="Confirm Password"
               placeholderTextColor="#ccc"
-              value={confirmPassword}
-              onChangeText={(value) => handleChange('confirmPassword', value)}
+              value={resetPasswordForm.confirmPassword}
+              onChangeText={value => handleChange('confirmPassword', value)}
               secureTextEntry
             />
           </View>
 
           <TouchableOpacity
-            style={[styles.button, loading && { opacity: 0.6 }]}
+            style={[styles.button, loading && {opacity: 0.6}]}
             onPress={handleSubmit}
-            disabled={loading}
-          >
+            disabled={loading}>
             <Text style={styles.buttonText}>
               {loading ? 'Resetting...' : 'Reset Password'}
             </Text>
@@ -94,7 +119,6 @@ const ResetPassword = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -111,7 +135,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 4,
     marginBottom: height * 0.02,
     textAlign: 'center',
@@ -160,7 +184,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-
 
 export default ResetPassword;

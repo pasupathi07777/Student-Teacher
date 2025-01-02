@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React, {act} from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,42 +14,37 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useDispatch, useSelector} from 'react-redux';
 import {
-  resetPasswordState,
-  updateResetPasswordForm,
+  
   verfiyEmail,
   setRestPasswordErrors,
+  updateEmailVerifyForm,
+  verifyEmailState,
 } from '../../slices/authSlices/verifyEmailSlice';
-
-
 
 const {width, height} = Dimensions.get('window');
 
-
 const ResetPassword = ({navigation}) => {
-  const {Loading, resetPasswordForm} =
-    useSelector(resetPasswordState);
-  console.log(resetPasswordForm.errors);
-  
+  const {Loading, verfiyEmailForm} = useSelector(verifyEmailState);
   const dispatch = useDispatch();
 
   const handleChange = (field, value) => {
-    dispatch(updateResetPasswordForm({field, value}));
+    dispatch(updateEmailVerifyForm({field, value}));
   };
 
   const handleSubmit = () => {
-    const {email} = resetPasswordForm;
+    const {email} = verfiyEmailForm;
+    console.log(email);
 
     dispatch(verfiyEmail({email}))
       .unwrap()
       .then(() => {
         Alert.alert('Success', 'Reset link sent successfully!');
         navigation.navigate('verifyOtp');
-
       })
       .catch(err => {
         if (err.errors) {
           console.log(err);
-          
+
           dispatch(setRestPasswordErrors({errors: err.errors}));
         } else {
           Alert.alert('Failed', err.error || 'Something went wrong.');
@@ -69,26 +64,24 @@ const ResetPassword = ({navigation}) => {
           </Text>
 
           <View style={styles.inputContainer}>
-            {resetPasswordForm.errors.email && (
+            {verfiyEmailForm.errors.email && (
               <Text style={styles.errorText}>
-                {resetPasswordForm.errors.email}
+                {verfiyEmailForm.errors.email}
               </Text>
             )}
             <TextInput
               style={[
                 styles.input,
-                resetPasswordForm.errors.email && styles.inputError,
+                verfiyEmailForm.errors.email && styles.inputError,
               ]}
               placeholder="Email"
-              value={resetPasswordForm.email}
+              value={verfiyEmailForm.email}
               onChangeText={value => handleChange('email', value)}
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor="#ccc"
             />
-
           </View>
-
 
           <TouchableOpacity
             style={[styles.button, Loading && styles.buttonDisabled]}

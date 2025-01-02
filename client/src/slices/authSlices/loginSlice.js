@@ -31,6 +31,7 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
 export const getUserAuth = createAsyncThunk(
   'auth/token',
   async (_, { rejectWithValue }) => {
@@ -48,12 +49,13 @@ export const getUserAuth = createAsyncThunk(
   }
 );
 
+
 export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
       await AsyncStorage.removeItem('authToken');
-      return {};  // Just return empty object or any necessary value
+      return {};  
     } catch (err) {
       return rejectWithValue({ message: 'Error during logout' });
     }

@@ -40,6 +40,8 @@ export const otpSlice = createSlice({
     updateOtp: (state, action) => {
       const {index, value} = action.payload;
       state.otp[index] = value;
+      state.otpForm.errors = null;
+      state.OtpErrors = null;
     },
     clearOtp: state => {
       state.otp = ['', '', '', '', ''];
@@ -61,6 +63,7 @@ export const otpSlice = createSlice({
         state.loading = false;
         state.success = true;
         console.debug('OTP Verified:', action.payload);
+        state.otp=['', '', '', '', '']
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;

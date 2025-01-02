@@ -8,7 +8,7 @@ import Home from './src/screens/Home';
 import FirstLoaderScreen from './src/screens/FirstLoaderScreen';
 import VerifyOtp from './src/screens/auth/VerifyOtp';
 import ResetPassword from './src/screens/auth/ResetPassword';
-
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 
 const MyTheme = {
@@ -23,10 +23,33 @@ const MyTheme = {
 
 const Stack = createNativeStackNavigator();
 
+const Tab = createBottomTabNavigator();
+
+function MyTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#42f44b',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+        },
+      }}>
+      
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Profile" component={Home} />
+      <Tab.Screen name="Profile" component={Home} />
+      <Tab.Screen name="Profile" component={Home} />
+      
+    </Tab.Navigator>
+  );
+}
+
 function RootStack() {
   return (
     <Stack.Navigator
-      initialRouteName="ResetPassword"
+      initialRouteName="firstLoaderScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="signup" component={Signup} />
@@ -38,6 +61,11 @@ function RootStack() {
     </Stack.Navigator>
   );
 }
+
+
+
+
+
 
 export default function App() {
   return (

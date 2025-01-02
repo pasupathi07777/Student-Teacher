@@ -20,10 +20,11 @@ const FirstLoaderScreen = ({navigation}) => {
       dispatch(getUserAuth())
         .unwrap()
         .then(() => {
-          navigation.navigate('login');
+          navigation.navigate('home');
         })
         .catch(err => {
           console.log(err);
+          navigation.navigate('login');
         });
     };
     getToken();
