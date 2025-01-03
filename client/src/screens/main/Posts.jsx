@@ -14,23 +14,22 @@ import Video from 'react-native-video';
 import {useNavigation} from '@react-navigation/native';
 
 const Posts = () => {
-  const [mediaList, setMediaList] = useState([]); // List of selected media
-  const [selectedMedia, setSelectedMedia] = useState(null); // Currently selected media
-  const navigation = useNavigation(); // Initialize navigation
+  const [mediaList, setMediaList] = useState([]); 
+  const [selectedMedia, setSelectedMedia] = useState(null); 
+  const navigation = useNavigation();
 
-  // Open gallery and fetch all media
+
   const openGallery = () => {
     launchImageLibrary(
       {
-        mediaType: 'mixed', // Allows selection of both images and videos
+        mediaType: 'mixed',
         quality: 0.5,
-        selectionLimit: 0, // Allow selecting multiple files
+        selectionLimit: 0,
       },
       response => handleMediaResponse(response),
     );
   };
 
-  // Handle the response from the gallery
   const handleMediaResponse = response => {
     if (response.didCancel) {
       Alert.alert('User cancelled image picker');
