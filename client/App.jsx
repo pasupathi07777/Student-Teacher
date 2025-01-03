@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './src/screens/auth/Login';
 import Signup from './src/screens/auth/Signup';
@@ -9,21 +9,19 @@ import FirstLoaderScreen from './src/screens/FirstLoaderScreen';
 import VerifyOtp from './src/screens/auth/VerifyOtp';
 import ResetPassword from './src/screens/auth/ResetPassword';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-
-
-const MyTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: 'white', 
-    text: 'black',
-    color: 'black', 
-  },
-};
+import Chat from './src/screens/main/Chat';
+import Posts from './src/screens/main/Posts';
+import Notifications from './src/screens/main/Notifications';
+import Profile from './src/screens/main/Profile';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
+import AddStudent from './src/screens/subScreen/AddStudent';
 
 const Stack = createNativeStackNavigator();
-
 const Tab = createBottomTabNavigator();
+
+
 
 function MyTabs() {
   return (
@@ -36,12 +34,60 @@ function MyTabs() {
           backgroundColor: '#fff',
         },
       }}>
-      
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Profile" component={Home} />
-      <Tab.Screen name="Profile" component={Home} />
-      <Tab.Screen name="Profile" component={Home} />
-      
+      <Tab.Screen
+        name="Home"
+        component={Home}
+        options={{
+          // tabBarLabel: () => null,
+          tabBarIcon: ({color, size}) => (
+            <AntDesign name={'home'} size={22} color={'#000'} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={Chat}
+        options={{
+          // tabBarLabel: () => null,
+          tabBarIcon: ({color, size}) => (
+            <Ionicons
+              name={'chatbubble-ellipses-outline'}
+              size={22}
+              color={'#000'}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Posts"
+        component={Posts}
+        options={{
+          // tabBarLabel: () => null,
+          tabBarIcon: ({color, size}) => (
+            <Ionicons name={'add-circle-outline'} size={22} color={'#000'} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={Notifications}
+        options={{
+          // tabBarLabel: () => null,
+          tabBarIcon: ({color, size}) => (
+            <Ionicons name={'notifications-outline'} size={22} color={'#000'} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          // tabBarLabel: () => null,
+          tabBarIcon: ({color, size}) => (
+            <Feather name={'user'} size={22} color={'#000'} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -55,24 +101,18 @@ function RootStack() {
       <Stack.Screen name="signup" component={Signup} />
       <Stack.Screen name="EmailVerify" component={EmailVerify} />
       <Stack.Screen name="verifyOtp" component={VerifyOtp} />
-      <Stack.Screen name="home" component={Home} />
+      <Stack.Screen name="home" component={MyTabs} />
       <Stack.Screen name="firstLoaderScreen" component={FirstLoaderScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
+      <Stack.Screen name="addStudent" component={AddStudent} />
     </Stack.Navigator>
   );
 }
 
-
-
-
-
-
 export default function App() {
   return (
-   
-      <NavigationContainer theme={MyTheme}>
-        <RootStack />
-      </NavigationContainer>
-    
+    <NavigationContainer >
+      <RootStack />
+    </NavigationContainer>
   );
 }
